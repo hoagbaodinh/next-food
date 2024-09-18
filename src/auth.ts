@@ -11,28 +11,27 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
     Credentials({
       credentials: {
-        email: {},
+        username: {},
         password: {},
       },
       authorize: async (credentials) => {
-        const { email, password } = credentials;
+        const { username, password } = credentials;
         const res = await sendRequest<IBackendRes<ILogin>>({
           method: 'POST',
           url: 'http://localhost:8080/api/v1/auth/login',
           body: {
-            username: email,
+            username,
             password,
           },
         });
         console.log('>>>Check RES');
-        let result = res as any;
-        if (!res.statusCode) {
-          // return user object with their profile result
+        if (res.statusCode === 201) {
+          // return user object with their profile data
           return {
-            _id: result.user?._id,
-            email: result?.user?.email,
-            name: result?.user?.name,
-            access_token: result?.access_token,
+            _id: res.data?.user?._id,
+            email: res.data?.user?.email,
+            name: res.data?.user?.name,
+            access_token: res.data?.access_token,
           };
         }
         // sai mat khau
